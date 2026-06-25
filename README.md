@@ -86,8 +86,7 @@ app/
 
 ## Pochodzenie tego repozytorium
 
-Oryginalny kod źródłowy projektu został utracony przez autora. Repozytorium
-zostało zrekonstruowane z dystrybucyjnego instalatora `MailAI-Setup.exe`
+Repozytorium zostało zrekonstruowane z dystrybucyjnego instalatora `MailAI-Setup.exe`
 (Inno Setup 6.7.0), w którym aplikacja była spakowana jako czyste pliki
 źródłowe Pythona (nie skompilowane) — dzięki czemu kod jest identyczny
 z oryginałem.
