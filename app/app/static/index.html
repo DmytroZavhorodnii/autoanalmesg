@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MailAI</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="/static/style.css" rel="stylesheet">
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar">
+  <span class="navbar-brandM"><span class="dot-red">M</span>ail<span class="dot-yellow">@</span>AI</span>
+  <div class="d-flex align-items-center gap-2">
+    <span id="ollama-badge" class="badge bg-secondary"><i class="bi bi-circle-fill me-1"></i>Checking…</span>
+    <span id="ws-badge"     class="badge bg-warning text-dark"><i class="bi bi-wifi-off me-1"></i>WS</span>
+  </div>
+</nav>
+<div class="brand-bar"><span></span><span></span><span></span><span></span></div>
+
+<!-- ── First-run setup screen ──────────────────────────────────────────── -->
+<div id="setup-screen" class="d-none" style="min-height:80vh;display:flex;align-items:center;justify-content:center">
+  <div class="card shadow-sm p-4" style="max-width:520px;width:100%;margin:40px auto">
+    <div class="mb-3 text-center" style="font-size:22px;font-weight:700;letter-spacing:-0.5px">
+      <span class="dot-red">M</span>ail<span class="dot-yellow">@</span>AI
+      <span class="text-muted fw-normal ms-2" style="font-size:14px">First Run Setup</span>
+    </div>
+    <p id="setup-msg" class="text-muted small text-center mb-3">Checking setup status...</p>
+    <div class="progress mb-1" style="height:18px;border-radius:4px">
+      <div id="setup-progress-bar"
+           class="progress-bar progress-bar-striped progress-bar-animated"
+           role="progressbar" style="width:5%;min-width:2rem;font-size:11px">5%</div>
+    </div>
+    <div class="text-end mb-3" style="font-size:11px;color:var(--muted)" id="setup-pct-label">&nbsp;</div>
+    <div id="setup-log"
+         style="background:#1a1a2e;color:#a8d8a8;border-radius:6px;padding:10px;
+                height:180px;overflow-y:auto;font-size:11px;font-family:'Courier New',monospace">
+    </div>
+    <div class="text-center mt-3">
+      <small class="text-muted">Do not close this window. The AI model (~3 GB) is being downloaded.</small>
+    </div>
+  </div>
+</div>
+
+<!-- Tabs -->
+<div id="main-app">
+<div class="container-fluid px-3 mt-3">
+  <ul class="nav nav-tabs" id="mainTabs">
+    <li class="nav-item"><a class="nav-link active" href="#" data-tab="dashboard"><i class="bi bi-speedometer2 me-1"></i>Dashboard</a></li>
+    <li class="nav-item"><a class="nav-link" href="#" data-tab="excel"><i class="bi bi-file-earmark-excel me-1"></i>Excel Analysis</a></li>
+    <li class="nav-item"><a class="nav-link" href="#" data-tab="email"><i class="bi bi-envelope-fill me-1"></i>Email Monitor</a></li>
+    <li class="nav-item"><a class="nav-link" href="#" data-tab="results"><i class="bi bi-table me-1"></i>Results <span id="results-count" class="badge bg-primary ms-1">0</span></a></li>
+    <li class="nav-item"><a class="nav-link" href="#" data-tab="settings"><i class="bi bi-gear-fill me-1"></i>Settings</a></li>
+  </ul>
+
+  <!-- ── DASHBOARD ── -->
+  <div id="tab-dashboard" class="tab-pane pt-3">
+    <div class="row g-3 mb-3">
+      <div class="col-6 col-md-3"><div class="card stat-card text-center p-3">
+        <div class="stat-num" id="stat-total">0</div><div class="stat-label">Total Classified</div>
+      </div></div>
+      <div class="col-6 col-md-3"><div class="card stat-card red text-center p-3">
+        <div class="stat-num" id="stat-open">0</div><div class="stat-label">Open Items</div>
+      </div></div>
+      <div class="col-6 col-md-3"><div class="card stat-card yellow text-center p-3">
+        <div class="stat-num" id="stat-email">0</div><div class="stat-label">Email Alerts</div>
+      </div></div>
+      <div class="col-6 col-md-3"><div class="card stat-card green text-center p-3">
+        <div class="stat-num" id="stat-cache">0</div><div class="stat-label">Cache Hits</div>
+      </div></div>
+    </div>
+    <div class="row g-3">
+      <div class="col-md-6"><div class="card h-100">
+        <div class="card-header"><i class="bi bi-bar-chart me-1"></i>Type Distribution</div>
+        <div class="card-body"><div id="chart-typ" class="chart-bars"></div></div>
+      </div></div>
+      <div class="col-md-6"><div class="card h-100">
+        <div class="card-header"><i class="bi bi-clock-history me-1"></i>Recent Classifications</div>
+        <div class="card-body p-0"><ul class="list-group list-group-flush" id="recent-list">
+          <li class="list-group-item text-muted small">No results yet.</li>
+        </ul></div>
+      </div></div>
+    </div>
+  </div>
+
+  <!-- ── EXCEL ANALYSIS ── -->
+  <div id="tab-excel" class="tab-pane d-none pt-3">
+    <div class="row g-3">
+      <div class="col-md-5"><div class="card">
+        <div class="card-header"><i class="bi bi-upload me-1"></i>Upload Excel File</div>
+        <div class="card-body">
+          <div id="drop-zone" class="drop-zone mb-3">
+            <i class="bi bi-file-earmark-excel fs-2 text-success"></i>
+            <div class="mt-2">Drag &amp; drop <code>.xlsx</code> here</div>
+            <div class="small text-muted">or click to browse</div>
+            <input type="file" id="excel-file-input" accept=".xlsx,.xls" class="d-none">
+          </div>
+          <div id="file-name" class="small text-muted mb-3">No file selected.</div>
+
+          <!-- Date range -->
+          <div class="row g-2 mb-3">
+            <div class="col-6">
+              <label class="form-label">Date from</label>
+              <input type="date" id="excel-date-from" class="form-control form-control-sm">
+            </div>
+            <div class="col-6">
+              <label class="form-label">Date to</label>
+              <input type="date" id="excel-date-to" class="form-control form-control-sm">
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Message limit (0 = all)</label>
+            <input type="number" id="row-limit" class="form-control form-control-sm" value="20" min="0" placeholder="0 = no limit">
+          </div>
+          <div class="d-flex gap-2">
+            <button id="btn-start-batch" class="btn btn-primary flex-grow-1" disabled>
+              <i class="bi bi-play-fill me-1"></i>Start Classification
+            </button>
+            <button id="btn-stop-excel" class="btn btn-danger d-none" title="Stop batch">
+              <i class="bi bi-stop-fill"></i>
+            </button>
+            <button id="btn-download" class="btn btn-outline-success" title="Download" disabled>
+              <i class="bi bi-download"></i>
+            </button>
+          </div>
+          <div id="excel-queue-msg" class="small text-warning mt-2 d-none">
+            <i class="bi bi-clock me-1"></i>Job queued — will start when current batch finishes.
+          </div>
+        </div>
+      </div></div>
+      <div class="col-md-7"><div class="card h-100">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <span><i class="bi bi-activity me-1"></i>Live Progress</span>
+          <span id="batch-status" class="badge bg-secondary">Idle</span>
+        </div>
+        <div class="card-body">
+          <div class="progress mb-2"><div id="batch-progress" class="progress-bar" style="width:0%"></div></div>
+          <div id="batch-eta" class="small text-muted mb-2"></div>
+          <div id="batch-log" class="batch-log"></div>
+        </div>
+      </div></div>
+    </div>
+  </div>
+
+  <!-- ── EMAIL MONITOR ── -->
+  <div id="tab-email" class="tab-pane d-none pt-3">
+    <div class="row g-3">
+      <div class="col-md-5"><div class="card">
+        <div class="card-header"><i class="bi bi-server me-1"></i>Mail Connection</div>
+        <div class="card-body">
+          <div class="mb-2">
+            <label class="form-label">Protocol</label>
+            <select id="em-protocol" class="form-select form-select-sm">
+              <option value="imap">IMAP</option>
+              <option value="pop3">POP3</option>
+            </select>
+          </div>
+          <div class="mb-2"><label class="form-label">Host</label>
+            <input type="text" id="em-host" class="form-control form-control-sm" placeholder="imap.gmail.com"></div>
+          <div class="row mb-2">
+            <div class="col-8"><label class="form-label">Port</label>
+              <input type="number" id="em-port" class="form-control form-control-sm" value="993"></div>
+            <div class="col-4 d-flex align-items-end pb-1">
+              <div class="form-check"><input class="form-check-input" type="checkbox" id="em-ssl" checked>
+                <label class="form-check-label small" for="em-ssl">SSL</label></div>
+            </div>
+          </div>
+          <div class="mb-2"><label class="form-label">Username / Email</label>
+            <input type="email" id="em-user" class="form-control form-control-sm"></div>
+          <div class="mb-2"><label class="form-label">Password / App Password</label>
+            <input type="password" id="em-pass" class="form-control form-control-sm"></div>
+          <div class="mb-2" id="em-folder-row"><label class="form-label">Folder</label>
+            <input type="text" id="em-folder" class="form-control form-control-sm" value="INBOX"></div>
+          <div class="mb-3"><label class="form-label">Poll interval (seconds)</label>
+            <input type="number" id="em-interval" class="form-control form-control-sm" value="60" min="10"></div>
+          <div id="em-status-msg" class="small mb-3 d-none"></div>
+          <div class="d-flex gap-2">
+            <button id="btn-em-test"  class="btn btn-outline-secondary btn-sm"><i class="bi bi-plug me-1"></i>Test</button>
+            <button id="btn-em-start" class="btn btn-success btn-sm flex-grow-1"><i class="bi bi-play-fill me-1"></i>Start Monitor</button>
+            <button id="btn-em-stop"  class="btn btn-danger btn-sm d-none"><i class="bi bi-stop-fill me-1"></i>Stop</button>
+          </div>
+        </div>
+      </div></div>
+      <div class="col-md-7"><div class="card h-100">
+        <div class="card-header d-flex justify-content-between">
+          <span><i class="bi bi-envelope-open me-1"></i>Live Email Feed</span>
+          <span id="em-monitor-badge" class="badge bg-secondary">Stopped</span>
+        </div>
+        <div class="card-body p-0">
+          <div id="email-feed" class="email-feed">
+            <div class="text-muted small p-3">No emails processed yet.</div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+    <!-- Fetch & Classify row -->
+    <div class="row g-3 mt-2">
+      <div class="col-12"><div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <span><i class="bi bi-cloud-download me-1"></i>Fetch &amp; Classify from Mailbox</span>
+          <span id="em-batch-badge" class="badge bg-secondary">Idle</span>
+        </div>
+        <div class="card-body">
+          <div class="row g-2 align-items-end mb-2">
+            <div class="col-auto">
+              <label class="form-label">Date from</label>
+              <input type="date" id="em-date-from" class="form-control form-control-sm" style="width:150px">
+            </div>
+            <div class="col-auto">
+              <label class="form-label">Date to</label>
+              <input type="date" id="em-date-to" class="form-control form-control-sm" style="width:150px">
+            </div>
+            <div class="col-auto">
+              <label class="form-label">Max messages</label>
+              <input type="number" id="em-fetch-limit" class="form-control form-control-sm"
+                     value="200" min="1" style="width:90px">
+            </div>
+            <div class="col-auto d-flex gap-2">
+              <button id="btn-em-fetch" class="btn btn-primary btn-sm">
+                <i class="bi bi-inbox-fill me-1"></i>Fetch &amp; Classify
+              </button>
+              <button id="btn-stop-email-batch" class="btn btn-danger btn-sm d-none">
+                <i class="bi bi-stop-fill me-1"></i>Stop
+              </button>
+            </div>
+          </div>
+          <div id="email-queue-msg" class="small text-warning mb-2 d-none">
+            <i class="bi bi-clock me-1"></i>Job queued — will start when current batch finishes.
+          </div>
+          <div id="em-fetch-progress-wrap" class="d-none">
+            <div class="progress mb-1"><div id="em-fetch-progress" class="progress-bar" style="width:0%"></div></div>
+            <div id="em-fetch-eta" class="small text-muted mb-1"></div>
+            <div id="em-fetch-log" class="batch-log" style="max-height:140px"></div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+  </div>
+
+  <!-- ── RESULTS ── -->
+  <div id="tab-results" class="tab-pane d-none pt-3">
+
+    <!-- Upload pre-classified results -->
+    <div class="card mb-3">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-file-earmark-arrow-up me-1"></i>Upload Pre-classified Results</span>
+        <button id="btn-toggle-upload" class="btn btn-outline-secondary btn-sm">
+          <i class="bi bi-chevron-down"></i>
+        </button>
+      </div>
+      <div id="upload-results-body" class="card-body d-none">
+        <div class="d-flex gap-3 align-items-center flex-wrap">
+          <div id="results-drop-zone" class="drop-zone mb-0" style="min-height:80px;padding:12px 24px;flex:0 0 auto">
+            <i class="bi bi-file-earmark-excel fs-4 text-success"></i>
+            <div class="mt-1 small">Drop <code>.xlsx</code> or click</div>
+            <input type="file" id="results-file-input" accept=".xlsx,.xls" class="d-none">
+          </div>
+          <div class="flex-grow-1">
+            <div id="results-upload-name" class="small text-muted mb-2">No file selected.</div>
+            <button id="btn-upload-results" class="btn btn-primary btn-sm" disabled>
+              <i class="bi bi-upload me-1"></i>Upload &amp; Merge
+            </button>
+            <div id="results-upload-msg" class="small mt-2"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Source tabs -->
+    <ul class="nav nav-pills mb-3" id="result-source-tabs">
+      <li class="nav-item"><a class="nav-link active" href="#" data-src="all">All <span id="src-count-all" class="badge bg-secondary ms-1">0</span></a></li>
+      <li class="nav-item"><a class="nav-link" href="#" data-src="excel"><i class="bi bi-file-earmark-excel me-1"></i>Excel <span id="src-count-excel" class="badge bg-secondary ms-1">0</span></a></li>
+      <li class="nav-item"><a class="nav-link" href="#" data-src="email"><i class="bi bi-envelope me-1"></i>Email <span id="src-count-email" class="badge bg-secondary ms-1">0</span></a></li>
+      <li class="nav-item"><a class="nav-link" href="#" data-src="uploaded"><i class="bi bi-upload me-1"></i>Uploaded <span id="src-count-uploaded" class="badge bg-secondary ms-1">0</span></a></li>
+    </ul>
+
+    <!-- Filter bar -->
+    <div id="filter-bar" class="d-flex gap-2 mb-3 flex-wrap align-items-center">
+      <select id="filter-typ" class="form-select form-select-sm w-auto">
+        <option value="">All Types</option>
+      </select>
+      <select id="filter-priorytet" class="form-select form-select-sm w-auto">
+        <option value="">All Priorities</option>
+        <option>high</option><option>medium</option><option>low</option>
+      </select>
+      <select id="filter-status" class="form-select form-select-sm w-auto">
+        <option value="">All Statuses</option>
+        <option>open</option><option>closed</option>
+      </select>
+      <select id="filter-serwis" class="form-select form-select-sm w-auto">
+        <option value="">All Services</option>
+      </select>
+      <div id="custom-filters-container" class="d-contents"></div>
+      <input id="filter-search" type="search" class="form-control form-control-sm" placeholder="Search…" style="min-width:160px">
+      <button id="btn-clear-results" class="btn btn-outline-danger btn-sm ms-auto">
+        <i class="bi bi-trash me-1"></i>Clear All
+      </button>
+      <button id="btn-dl-results" class="btn btn-outline-success btn-sm" disabled>
+        <i class="bi bi-download me-1"></i>Export Excel
+      </button>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table results-table table-hover" id="results-table">
+        <thead><tr id="results-thead-row"></tr></thead>
+        <tbody id="results-tbody"></tbody>
+      </table>
+    </div>
+    <div id="results-empty" class="text-muted small mt-2 d-none">No results match the current filters.</div>
+  </div>
+
+  <!-- ── SETTINGS ── -->
+  <div id="tab-settings" class="tab-pane d-none pt-3">
+    <div class="row g-3">
+
+      <div class="col-md-5"><div class="card h-100">
+        <div class="card-header"><i class="bi bi-sliders me-1"></i>Model &amp; Performance</div>
+        <div class="card-body">
+          <div class="mb-3"><label class="form-label">Model name</label>
+            <input type="text" id="cfg-model" class="form-control form-control-sm" value="gemma3"></div>
+          <div class="mb-3"><label class="form-label">Parallel workers</label>
+            <input type="number" id="cfg-workers" class="form-control form-control-sm" value="2" min="1" max="16"></div>
+          <div class="mb-3"><label class="form-label">Request timeout (s)</label>
+            <input type="number" id="cfg-timeout" class="form-control form-control-sm" value="180" min="30"></div>
+          <button id="btn-save-cfg" class="btn btn-primary btn-sm">
+            <i class="bi bi-save me-1"></i>Save Settings
+          </button>
+        </div>
+      </div></div>
+
+      <div class="col-md-7"><div class="card h-100">
+        <div class="card-header"><i class="bi bi-chat-square-text me-1"></i>Extra AI Instructions</div>
+        <div class="card-body d-flex flex-column">
+          <label class="form-label">Injected into every classification prompt</label>
+          <textarea id="cfg-extra" class="form-control form-control-sm flex-grow-1" rows="5"
+            placeholder="e.g. If the message mentions licensing, set typ=service_update"></textarea>
+          <button id="btn-save-extra" class="btn btn-primary btn-sm mt-2 align-self-start">
+            <i class="bi bi-save me-1"></i>Save Instructions
+          </button>
+        </div>
+      </div></div>
+
+      <!-- Classification Criteria TABLE -->
+      <div class="col-12"><div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <span><i class="bi bi-list-check me-1"></i>Classification Criteria</span>
+          <span class="text-muted" style="font-size:11px">
+            <span style="color:var(--blue)">━━</span> built-in &nbsp;
+            <span style="color:var(--yellow)">━━</span> custom
+          </span>
+        </div>
+        <div id="criteria-table-container" class="criteria-scroll"></div>
+        <div class="criteria-save-bar">
+          <span class="text-muted" style="font-size:11px">Edit values inline · ＋ add value · ＋ Column for custom fields</span>
+          <button id="btn-save-criteria" class="btn btn-primary btn-sm">
+            <i class="bi bi-save me-1"></i>Save Criteria
+          </button>
+        </div>
+      </div></div>
+
+      <!-- Admin Feedback -->
+      <div class="col-12"><div class="card">
+        <div class="card-header"><i class="bi bi-patch-check me-1"></i>Feedback Corrections (RL)</div>
+        <div class="card-body p-0">
+          <ul class="list-group list-group-flush" id="feedback-list">
+            <li class="list-group-item text-muted small">No corrections recorded.</li>
+          </ul>
+        </div>
+      </div></div>
+
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<!-- ── DETAIL MODAL ── -->
+<div class="modal fade detail-modal" id="detailModal" tabindex="-1">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div>
+          <span class="modal-title">Message&nbsp;<span id="dm-id" class="fw-bold"></span></span>
+          <span id="dm-source-badge" class="badge bg-secondary ms-2" style="font-size:10px"></span>
+          <span id="dm-date" class="text-muted ms-2" style="font-size:12px"></span>
+        </div>
+        <div class="d-flex gap-2 align-items-center">
+          <button id="btn-dm-newtab" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-box-arrow-up-right me-1"></i>New Tab
+          </button>
+          <button id="btn-dm-correct" class="btn btn-warning btn-sm">
+            <i class="bi bi-pencil me-1"></i>Correct (RL)
+          </button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+      </div>
+
+      <div class="modal-body">
+        <div class="dm-section">Classification</div>
+        <div class="row g-2 mb-3" id="dm-fields-grid"></div>
+
+        <div class="dm-section mt-3">Summary</div>
+        <div id="dm-summary" class="dm-text-block mb-3"></div>
+
+        <div class="dm-section">Attachments</div>
+        <div id="dm-attachments" class="small text-muted mb-3"></div>
+
+        <div class="dm-section">Original Message</div>
+        <div id="dm-message" class="dm-message-block mb-3"></div>
+
+        <!-- Inline Correction Form -->
+        <div id="dm-correction" class="dm-correction-box d-none">
+          <div class="dm-section">Correction — RL Feedback</div>
+          <div class="row g-2 mb-2">
+            <div class="col-6 col-md-3">
+              <label class="form-label">Type</label>
+              <select id="dm-typ" class="form-select form-select-sm"></select>
+            </div>
+            <div class="col-6 col-md-3">
+              <label class="form-label">Priority</label>
+              <select id="dm-priorytet" class="form-select form-select-sm">
+                <option>high</option><option>medium</option><option>low</option>
+              </select>
+            </div>
+            <div class="col-6 col-md-3">
+              <label class="form-label">Service</label>
+              <select id="dm-serwis" class="form-select form-select-sm"></select>
+            </div>
+            <div class="col-6 col-md-3">
+              <label class="form-label">Action</label>
+              <select id="dm-akcja" class="form-select form-select-sm">
+                <option>required</option><option>recommended</option><option>none</option>
+              </select>
+            </div>
+          </div>
+          <button id="btn-dm-save-correction" class="btn btn-warning btn-sm">
+            <i class="bi bi-save me-1"></i>Save Correction
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast-el"></div>
+</div><!-- /#main-app -->
+
+<footer class="footer mt-auto py-3 bg-light border-top">
+  <div class="container-fluid text-center">
+    <small class="text-muted">
+      Designed &amp; Developed by
+      <a href="https://dimon.work" target="_blank" class="text-decoration-none fw-medium">
+        dimon.work
+      </a>
+    </small>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/static/app.js"></script>
+</body>
+</html>

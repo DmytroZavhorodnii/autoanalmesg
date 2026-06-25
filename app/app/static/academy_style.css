@@ -1,0 +1,522 @@
+
+* {
+    box-sizing: border-box;
+    
+}
+
+body {
+    font-family: 'JetBrains Mono', monospace;
+    background: #f8f9fa;
+    color: #222;
+    margin: 0;
+    padding: 0;
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+/* ====================== HEADER ====================== */
+.header {
+    background: #003153;
+    color: white;
+    padding: 15px 15px;
+    font-size: 28px;
+    font-weight: bold;
+    font-family: 'Merriweather', serif;
+}
+.navbar {
+            background: #ffa31a;
+            padding: 6px 15px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar .nav-container {
+            display: flex;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            gap: 12px;
+            -webkit-overflow-scrolling: touch;
+
+        }
+        .nav-container::-webkit-scrollbar{
+            display: none!important;
+        }
+        .nav-container::-webkit-scrollbar {
+                    display: none!important;
+                }
+
+        .navbar a {
+            color: #003153;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .navbar a:hover {
+            color: #002240;
+            text-decoration: underline;
+        }
+
+        /* Efekt chowania headera przy scrollu */
+        .header {
+            transition: transform 0.4s ease;
+        }
+
+        .header.hidden {
+            transform: translateY(-100%);
+        }
+
+/* ====================== CONTAINER ====================== */
+.container, .definition {
+    max-width: 1300px;
+    margin: 30px auto;
+    padding: 0 25px;
+}
+
+/* ====================== BREADCRUMBS ====================== */
+.breadcrumbs {
+    font-size: 14px;
+    margin-bottom: 25px;
+    color: #555;
+    word-break: break-all;
+}
+
+.breadcrumbs a {
+    color: #0066cc;
+    text-decoration: none;
+}
+
+.breadcrumbs a:hover {
+    text-decoration: underline;
+}
+
+/* ====================== TABLE ====================== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+thead{
+    border: 2px solid #eee;
+}
+
+th {
+    background: #f8f8f8;
+    padding: 16px 20px;
+    text-align: left;
+    color: #444;
+    font-weight: 600;
+    border: 1px solid #777;
+}
+
+td {
+    padding: 14px 20px;
+    border: 1px solid #eee;
+
+}
+
+tr:hover {
+    background: #f9f9f9;
+}
+
+/* ====================== COMMON UTILITIES ====================== */
+.icon {
+    font-size: 24px;
+    width: 42px;
+    display: inline-block;
+    text-align: center;
+}
+
+a {
+    color: #0066cc;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+.dir {
+    color: #0066cc;
+    font-weight: 500;
+}
+
+.small {
+    color: #666;
+    font-size: 13px;
+}
+
+.highlight {
+    background: #fff3b0;
+    padding: 1px 4px;
+    border-radius: 3px;
+    font-weight: bold;
+}
+
+.path-prefix {
+    color: #999;
+    font-size: 12px;
+    margin-left: 8px;
+    font-family: monospace;
+}
+
+.score-badge {
+    background: #e8f5e9;
+    color: #2e7d32;
+    padding: 2px 6px;
+    border-radius: 12px;
+    font-size: 11px;
+    margin-left: 8px;
+}
+
+.loading {
+    display: inline-block;
+    width: 20px;
+    text-align: center;
+    margin-left: 10px;
+    font-size: 14px;
+    color: #0066cc;
+}
+
+.result-count {
+    margin-bottom: 15px;
+    padding: 10px 15px;
+    background: #e8f4e8;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.no-results {
+    text-align: center;
+    padding: 60px 20px;
+    background: #fafafa;
+    border-radius: 12px;
+    color: #999;
+}
+
+.typo-warning {
+    background: #fff3e0;
+    border-left: 4px solid #ff9800;
+    padding: 10px 15px;
+    margin-bottom: 20px;
+    border-radius: 6px;
+    font-size: 13px;
+}
+
+/* SEKCJA: KARTY TECHNOLOGII */
+
+.tech-section {
+    padding: 0px;
+    background: #f8f9fa;
+}
+
+.h2-text {
+    text-align: center;
+    font-size: 2.6rem;
+    margin-bottom: 60px;
+    color: #003153;
+    font-family: 'Merriweather', serif;
+}
+
+.tech-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 28px;
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 0 25px;
+}
+
+.tech-card {
+    
+    padding: 45px 30px;
+    text-align: center;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.tech-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.12);
+}
+
+.tech-card h3 {
+    font-size: 2.1rem;
+    margin: 0 0 14px 0;
+    color: #003153;
+    font-weight: 700;
+}
+
+.tech-card p {
+    color: #333;
+    font-size: 1.05rem;
+    margin-bottom: 35px;
+    min-height: 48px;
+}
+
+.tech-card .btn {
+    background: #003153;
+    color: white;
+    padding: 14px 34px;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 500;
+    display: inline-block;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+}
+
+.tech-card .btn:hover {
+    background: #002240;
+    transform: scale(1.05);
+}
+
+/* Kolory kart */
+.tech-card.php     { background: #ff8a8a; }
+.tech-card.js      { background: #fff38a; }
+.tech-card.mysql   { background: #b4d8ff; }
+
+.tech-card.cwiczenia   { background: #B3FFE6; }   /* Delikatny fioletowy   - Ćwiczenia */
+.tech-card.egzaminy    { background: #FFB3E6; }   /* Delikatny różowy       - Egzaminy */
+.tech-card.prezentacje { background: #D1B3FF; }   /* Delikatny miętowy      - Prezentacje */
+
+
+
+/* =================== footer ========================== */
+.footer {
+        background: #003153;
+        color: #ddd;
+        padding: 50px 0 35px;
+        margin-top: 80px;
+    }
+    .footer-content {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 40px;
+        max-width: 1300px;
+        margin: 0 auto;
+        padding: 0 25px;
+    }
+    .footer-left p {
+        margin: 8px 0;
+        font-size: 1.05rem;
+    }
+    .footer-left strong {
+        color: white;
+    }
+    .footer-link {
+        color: #ffa31a;
+        text-decoration: none;
+        font-weight: 500;
+    }
+    .footer-link:hover {
+        text-decoration: underline;
+    }
+    .footer-right {
+        text-align: right;
+    }
+    .copyright {
+        color: #aaa;
+        font-size: 0.95rem;
+        margin-bottom: 8px;
+    }
+    .license {
+        color: #777;
+        font-size: 0.85rem;
+        line-height: 1.5;
+        max-width: 420px;
+    }
+
+    @media (max-width: 768px) {
+        .footer-content {
+            flex-direction: column;
+            align-items: center; /* ← centruje kolumny w pionie */
+            text-align: center;
+        }
+        .footer-left {
+            align-items: center;
+            display: flex;
+            flex-direction: column;
+        }
+        .footer-right {
+            text-align: center;
+        }
+        .license {
+            max-width: 100%;
+        }
+    }
+/* ====================== RESPONSIVE ====================== */
+@media (max-width: 768px) {
+    .container, .definition {
+        padding: 0 15px;
+    }
+    
+    td, th {
+        padding: 10px 12px;
+    }
+    
+    .icon {
+        font-size: 20px;
+        width: 30px;
+    }
+    
+    .path-prefix {
+        display: none;
+    }
+}
+
+
+
+
+
+
+
+.layout-wrapper {
+    display: flex;
+    align-items: stretch;
+    max-width: 1300px;
+    margin: 30px auto;
+    padding: 0 25px;
+    gap: 0;
+}
+
+.sidenav {
+    width: 240px;
+    min-width: 240px;
+    background: #fff;
+    border-right: 1px solid #e0e0e0;
+    overflow-y: auto;
+    position: sticky;
+    top: 45px; /* wysokość navbara */
+    max-height: calc(100vh - 45px);
+    flex-shrink: 0;
+}
+
+.sidenav-section {
+    padding: 12px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.sidenav-section:last-child {
+    border-bottom: none;
+}
+
+.sidenav-heading {
+    font-family: 'Merriweather', serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: #999;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 6px 18px;
+    margin: 0;
+}
+
+.sidenav a {
+    display: block;
+    padding: 6px 18px;
+    color: #222;
+    text-decoration: none;
+    font-size: 14px;
+    font-family: 'JetBrains Mono', monospace;
+    line-height: 1.5;
+    transition: background 0.15s, color 0.15s;
+    border-left: 3px solid transparent;
+}
+
+.sidenav a:hover {
+    background: #fff3b0;
+    color: #003153;
+    text-decoration: none;
+    border-left: 3px solid #ffa31a;
+}
+
+.sidenav a.active {
+    background: #fff3b0;
+    color: #003153;
+    font-weight: 600;
+    border-left: 3px solid #003153;
+}
+
+.sidenav-toggle {
+    display: none;
+    position: fixed;
+    bottom: 24px;
+    right: 20px;
+    z-index: 1100;
+    background: #ff9800;
+    color: white;
+    border: none;
+    padding: 12px 18px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.sidenav-overlay {
+    display: none;
+}
+
+.main-content {
+    flex: 1;
+    min-width: 0;
+    padding: 0 0 0 30px;
+}
+.main-content img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+@media (max-width: 768px) {
+    .layout-wrapper {
+        display: block;
+        padding: 0 15px;
+    }
+
+    .main-content {
+        padding: 0;
+    }
+
+    .sidenav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100%;
+        max-height: 100%;
+        width: 260px;
+        z-index: 1050;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        box-shadow: 4px 0 16px rgba(0,0,0,0.15);
+    }
+
+    .sidenav.open {
+        transform: translateX(0);
+    }
+
+    .sidenav-overlay {
+        display: block;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.4);
+        z-index: 1040;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s;
+    }
+
+    .sidenav-overlay.open {
+        opacity: 1;
+        pointer-events: all;
+    }
+
+    .sidenav-toggle {
+        display: block;
+    }
+}
