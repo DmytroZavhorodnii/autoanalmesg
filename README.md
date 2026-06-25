@@ -84,12 +84,7 @@ app/
     └── static/                frontend (HTML/CSS/JS)
 ```
 
-## Pochodzenie tego repozytorium
 
-Repozytorium zostało zrekonstruowane z dystrybucyjnego instalatora `MailAI-Setup.exe`
-(Inno Setup 6.7.0), w którym aplikacja była spakowana jako czyste pliki
-źródłowe Pythona (nie skompilowane) — dzięki czemu kod jest identyczny
-z oryginałem.
 
 ## Autor
 
