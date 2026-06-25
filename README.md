@@ -92,6 +92,4 @@ app/
 
 ## Licencja
 
-Ten projekt jest udostępniony na tej samej licencji open source, na jakiej
-jest udostępniane jądro Linux: **GNU General Public License v2.0 (GPL-2.0)**.
 Pełny tekst licencji znajduje się w pliku [LICENSE](LICENSE).
